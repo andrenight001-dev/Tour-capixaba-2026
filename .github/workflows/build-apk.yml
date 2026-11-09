@@ -17,6 +17,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: Organizar o app
+        run: |
+          mkdir -p www
+          cp index.html www/index.html
       - name: Instalar dependências
         run: npm install
       - name: Criar projeto Android
@@ -24,7 +28,17 @@ jobs:
       - name: Copiar o app para o projeto Android
         run: npx cap sync android
       - name: Colocar o ícone do Tour Capixaba
-        run: cp -r icon-res/. android/app/src/main/res/
+        run: |
+          R=android/app/src/main/res
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp ic_launcher.png $R/mipmap-$d/ic_launcher.png
+            cp ic_launcher_round.png $R/mipmap-$d/ic_launcher_round.png
+            cp ic_launcher_foreground.png $R/mipmap-$d/ic_launcher_foreground.png
+          done
+          mkdir -p $R/mipmap-anydpi-v26
+          cp ic_launcher.xml $R/mipmap-anydpi-v26/ic_launcher.xml
+          cp ic_launcher_round.xml $R/mipmap-anydpi-v26/ic_launcher_round.xml
+          cp tour_icon.xml $R/values/tour_icon.xml
       - name: Usar a chave de assinatura fixa
         run: |
           mkdir -p ~/.android
@@ -35,5 +49,5 @@ jobs:
       - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
-          name: viagem-es-apk
+          name: tour-capixaba-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
